@@ -1,0 +1,144 @@
+---
+mode: train
+model:
+  backbone: vit
+  classifier: clam
+  depth: null
+  activation: null
+  resize_shape:
+  - 512
+  - 512
+  input_shape:
+  - 3
+  - 512
+  - 512
+  output_shape:
+  - 1
+  clam:
+    size_arg: [384, 256, 128]
+    # size_arg: [384, 256, 128, 64]
+    # size_arg: [768, 256, 128]
+    # size_arg: [768, 256, 128, 64]
+    # size_arg: [768, 512, 256]
+    # size_arg: [768, 512, 256, 128]
+    # size_arg: [768, 512, 256, 128, 64]
+    attention_depth: 2
+    classifier_depth: 2
+    gated: True
+    dropout: True
+    instance_eval: True
+    instance_loss: svm
+    subtype: False
+    autoscale_network: False
+multires_aggregation:
+  features: mul
+  attention: null
+  feature_level: 0
+trainer:
+  epochs: 30
+  batch_size: 1
+  accumulate_grad_batches: 32
+  persistent_workers: True
+  prefetch_factor: 2
+  num_workers: 8
+  shuffle: True
+  check_val_every_n_epoch: 1
+  reload_dataloaders_every_n_epochs: 1
+  callbacks: True
+  sync_dist: False
+  optimizer: adam
+  weight_decay: 'default'
+  # Scale learning rate according to the number of gpus and nodes (e.g. base_lr * num_gpus * num_nodes)
+  learning_rate: !!python/object/apply:eval [1.0e-03 * 1 * 1]
+  # min_learning_rate: !!python/object/apply:eval [1.0e-07 * 1 * 1]
+  max_learning_rate: !!python/object/apply:eval [1.0e-03 * 1 * 1]
+  lr_enable: True
+  lr_scheduler_metric_monitor: val_loss
+  lr_schedule: exp
+  lr_gamma: 0.85
+  lr_factor: 0.1
+  # checkpoint_path: null
+  class_mode: binary
+  loss:
+  - ce
+  multi_loss_weights:
+  - 1.0
+  classes_loss_weights: null
+metrics:
+  mdmc_reduce_comment: "`global` or `samplewise`"
+  mdmc_reduce: global
+  threshold: null
+augment:
+  enable: True
+  replace_black_with_white_background_online: True
+  stain_augmentation:
+    enable: True
+    luminocity: True
+#    method: macenko
+#    sigma1: 0.2
+#    sigma2: 0.2
+preprocess:
+  normalize: True
+  imagenet_norm: False
+  filters2apply:
+    pad: True
+    constant_pad_value: 230
+    tileSize: 512
+    blurriness_threshold: 500
+    blurriness_threshold_context: null
+    normalize_bluriness: True
+    apply_mask: False
+    mask_background:
+    - 230
+    - 230
+    - 230
+    green: False
+    grays: False
+    redPen: False
+    greenPen: False
+    bluePen: False
+    remove_microtome_artifacts: False
+    remove_small_objects: False
+    stain_norm: True
+    stain_norm_mask: False
+    stain_norm_luminosity: True
+    stain_norm_method: macenko
+    stain_norm_reference_dir: path/to/stain_normalization/folder
+    standardization_reference_dir: path/to/standardization/folder
+    standardization_reference_file: standardization_file.csv
+    keep_tile_percentage: 0.5
+callbacks:
+  early_stopping: False
+  es_patience: 5
+  es_min_delta: 0
+  checkpoint_top_k: 4
+  stochastic_weight_averaging: False
+dataset:
+  mil: True
+  precomputed: True
+  num_tiles: -1
+  processing_batch_size: -1
+  base_label: 2
+  train_folder: "path/to/train/set/folds"
+  val_folder: "path/to/val/set/folds"
+  test_folder: "path/to/test/set"
+  data_cols:
+    features_target: 'embeddings_vit_target'
+    features_context: 'embeddings_vit_context'
+    labels: 'grade'
+  classes:
+  - 0
+  - 1
+  target_names:
+  - II
+  - III
+  num_classes: 2
+comet:
+  enable: False
+  api_key: API_KEY
+  project: PROJECT_NAME
+  workspace: WORKSPACE
+  experiment_key:
+telegram:
+  token: TOKEN
+  chat_id: CHAT_ID
