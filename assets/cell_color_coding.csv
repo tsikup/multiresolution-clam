@@ -1,0 +1,5 @@
+Type,Tumor,Stroma,Immune cells,Other
+color,red,green,purple,yellow
+r_channel,255,0,128,255
+g_channel,0,128,0,255
+b_channel,0,0,128,0
